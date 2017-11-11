@@ -192,10 +192,7 @@ PANOCOMPOSER_EXP int ComposePanorama(float* Rmatrices, float* Kmatrices, void* i
 
 
 	Mat full_img, img;
-#ifndef OP
-	return 0;
-}
-#else
+
 	vector<ImageFeatures> features(numOfImages);
 	vector<Mat> images(numOfImages);
 	vector<Size> full_img_sizes(numOfImages);
@@ -249,6 +246,9 @@ PANOCOMPOSER_EXP int ComposePanorama(float* Rmatrices, float* Kmatrices, void* i
         cout << "Unknown bundle adjustment cost function: '" << ba_cost_func << "'.\n";
         return -1;
     }
+
+
+
     adjuster->setConfThresh(conf_thresh);
     Mat_<uchar> refine_mask = Mat::zeros(3, 3, CV_8U);
     if (ba_refine_mask[0] == 'x') refine_mask(0,0) = 1;
@@ -573,4 +573,3 @@ PANOCOMPOSER_EXP int ComposePanorama(float* Rmatrices, float* Kmatrices, void* i
     LOGLN("Finished, total time: " << ((getTickCount() - app_start_time) / getTickFrequency()) << " sec");
     return 0;
 }
-#endif
