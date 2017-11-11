@@ -91,7 +91,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;PANOCOMPOSER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <AdditionalIncludeDirectories>C:\MyMedia\Work\PanoComposer\include;C:\openCV3.3\opencv\build\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MyMedia\Work\PanoComposer\panoStitcher\include;C:\openCV3.3\opencv\build\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

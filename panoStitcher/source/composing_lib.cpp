@@ -164,7 +164,7 @@ int range_width = -1;
 
 
 
-int ComposePanorama(float* Rmatrices, float* Kmatrices, void* inputImages, int numOfImages, int byteType, int imageHeight, int imageWidth, int numChannels)
+PANOCOMPOSER_EXP int ComposePanorama(float* Rmatrices, float* Kmatrices, void* inputImages, int numOfImages, int byteType, int imageHeight, int imageWidth, int numChannels)
 {
 // TODO - Break ComposePanoram into (1) Prepare - calculate the size of the output based on Transforms (2) Process - actual warp and compose and put the output to a user provided BUFFER
 // TODO - populate the Rmatrices as vector<MAT> R and the Kmatrices as vector<MAT> K upon entry
