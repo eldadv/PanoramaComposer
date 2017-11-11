@@ -67,71 +67,71 @@
 using namespace std;
 using namespace cv;
 using namespace cv::detail;
-
-static void printUsage()
-{
-    cout <<
-        "Rotation model images stitcher.\n\n"
-        "stitching_detailed img1 img2 [...imgN] [flags]\n\n"
-        "Flags:\n"
-        "  --preview\n"
-        "      Run stitching in the preview mode. Works faster than usual mode,\n"
-        "      but output image will have lower resolution.\n"
-        "  --try_cuda (yes|no)\n"
-        "      Try to use CUDA. The default value is 'no'. All default values\n"
-        "      are for CPU mode.\n"
-        "\nMotion Estimation Flags:\n"
-        "  --work_megapix <float>\n"
-        "      Resolution for image registration step. The default is 0.6 Mpx.\n"
-        "  --features (surf|orb)\n"
-        "      Type of features used for images matching. The default is surf.\n"
-        "  --matcher (homography|affine)\n"
-        "      Matcher used for pairwise image matching.\n"
-        "  --estimator (homography|affine)\n"
-        "      Type of estimator used for transformation estimation.\n"
-        "  --match_conf <float>\n"
-        "      Confidence for feature matching step. The default is 0.65 for surf and 0.3 for orb.\n"
-        "  --conf_thresh <float>\n"
-        "      Threshold for two images are from the same panorama confidence.\n"
-        "      The default is 1.0.\n"
-        "  --ba (no|reproj|ray|affine)\n"
-        "      Bundle adjustment cost function. The default is ray.\n"
-        "  --ba_refine_mask (mask)\n"
-        "      Set refinement mask for bundle adjustment. It looks like 'x_xxx',\n"
-        "      where 'x' means refine respective parameter and '_' means don't\n"
-        "      refine one, and has the following format:\n"
-        "      <fx><skew><ppx><aspect><ppy>. The default mask is 'xxxxx'. If bundle\n"
-        "      adjustment doesn't support estimation of selected parameter then\n"
-        "      the respective flag is ignored.\n"
-        "  --wave_correct (no|horiz|vert)\n"
-        "      Perform wave effect correction. The default is 'horiz'.\n"
-        "  --save_graph <file_name>\n"
-        "      Save matches graph represented in DOT language to <file_name> file.\n"
-        "      Labels description: Nm is number of matches, Ni is number of inliers,\n"
-        "      C is confidence.\n"
-        "\nCompositing Flags:\n"
-        "  --warp (affine|plane|cylindrical|spherical|fisheye|stereographic|compressedPlaneA2B1|compressedPlaneA1.5B1|compressedPlanePortraitA2B1|compressedPlanePortraitA1.5B1|paniniA2B1|paniniA1.5B1|paniniPortraitA2B1|paniniPortraitA1.5B1|mercator|transverseMercator)\n"
-        "      Warp surface type. The default is 'spherical'.\n"
-        "  --seam_megapix <float>\n"
-        "      Resolution for seam estimation step. The default is 0.1 Mpx.\n"
-        "  --seam (no|voronoi|gc_color|gc_colorgrad)\n"
-        "      Seam estimation method. The default is 'gc_color'.\n"
-        "  --compose_megapix <float>\n"
-        "      Resolution for compositing step. Use -1 for original resolution.\n"
-        "      The default is -1.\n"
-        "  --expos_comp (no|gain|gain_blocks)\n"
-        "      Exposure compensation method. The default is 'gain_blocks'.\n"
-        "  --blend (no|feather|multiband)\n"
-        "      Blending method. The default is 'multiband'.\n"
-        "  --blend_strength <float>\n"
-        "      Blending strength from [0,100] range. The default is 5.\n"
-        "  --output <result_img>\n"
-        "      The default is 'result.jpg'.\n"
-        "  --timelapse (as_is|crop) \n"
-        "      Output warped images separately as frames of a time lapse movie, with 'fixed_' prepended to input file names.\n"
-        "  --rangewidth <int>\n"
-        "      uses range_width to limit number of images to match with.\n";
-}
+//
+//static void printUsage()
+//{
+//    cout <<
+//        "Rotation model images stitcher.\n\n"
+//        "stitching_detailed img1 img2 [...imgN] [flags]\n\n"
+//        "Flags:\n"
+//        "  --preview\n"
+//        "      Run stitching in the preview mode. Works faster than usual mode,\n"
+//        "      but output image will have lower resolution.\n"
+//        "  --try_cuda (yes|no)\n"
+//        "      Try to use CUDA. The default value is 'no'. All default values\n"
+//        "      are for CPU mode.\n"
+//        "\nMotion Estimation Flags:\n"
+//        "  --work_megapix <float>\n"
+//        "      Resolution for image registration step. The default is 0.6 Mpx.\n"
+//        "  --features (surf|orb)\n"
+//        "      Type of features used for images matching. The default is surf.\n"
+//        "  --matcher (homography|affine)\n"
+//        "      Matcher used for pairwise image matching.\n"
+//        "  --estimator (homography|affine)\n"
+//        "      Type of estimator used for transformation estimation.\n"
+//        "  --match_conf <float>\n"
+//        "      Confidence for feature matching step. The default is 0.65 for surf and 0.3 for orb.\n"
+//        "  --conf_thresh <float>\n"
+//        "      Threshold for two images are from the same panorama confidence.\n"
+//        "      The default is 1.0.\n"
+//        "  --ba (no|reproj|ray|affine)\n"
+//        "      Bundle adjustment cost function. The default is ray.\n"
+//        "  --ba_refine_mask (mask)\n"
+//        "      Set refinement mask for bundle adjustment. It looks like 'x_xxx',\n"
+//        "      where 'x' means refine respective parameter and '_' means don't\n"
+//        "      refine one, and has the following format:\n"
+//        "      <fx><skew><ppx><aspect><ppy>. The default mask is 'xxxxx'. If bundle\n"
+//        "      adjustment doesn't support estimation of selected parameter then\n"
+//        "      the respective flag is ignored.\n"
+//        "  --wave_correct (no|horiz|vert)\n"
+//        "      Perform wave effect correction. The default is 'horiz'.\n"
+//        "  --save_graph <file_name>\n"
+//        "      Save matches graph represented in DOT language to <file_name> file.\n"
+//        "      Labels description: Nm is number of matches, Ni is number of inliers,\n"
+//        "      C is confidence.\n"
+//        "\nCompositing Flags:\n"
+//        "  --warp (affine|plane|cylindrical|spherical|fisheye|stereographic|compressedPlaneA2B1|compressedPlaneA1.5B1|compressedPlanePortraitA2B1|compressedPlanePortraitA1.5B1|paniniA2B1|paniniA1.5B1|paniniPortraitA2B1|paniniPortraitA1.5B1|mercator|transverseMercator)\n"
+//        "      Warp surface type. The default is 'spherical'.\n"
+//        "  --seam_megapix <float>\n"
+//        "      Resolution for seam estimation step. The default is 0.1 Mpx.\n"
+//        "  --seam (no|voronoi|gc_color|gc_colorgrad)\n"
+//        "      Seam estimation method. The default is 'gc_color'.\n"
+//        "  --compose_megapix <float>\n"
+//        "      Resolution for compositing step. Use -1 for original resolution.\n"
+//        "      The default is -1.\n"
+//        "  --expos_comp (no|gain|gain_blocks)\n"
+//        "      Exposure compensation method. The default is 'gain_blocks'.\n"
+//        "  --blend (no|feather|multiband)\n"
+//        "      Blending method. The default is 'multiband'.\n"
+//        "  --blend_strength <float>\n"
+//        "      Blending strength from [0,100] range. The default is 5.\n"
+//        "  --output <result_img>\n"
+//        "      The default is 'result.jpg'.\n"
+//        "  --timelapse (as_is|crop) \n"
+//        "      Output warped images separately as frames of a time lapse movie, with 'fixed_' prepended to input file names.\n"
+//        "  --rangewidth <int>\n"
+//        "      uses range_width to limit number of images to match with.\n";
+//}
 
 
 // Default command line args
@@ -166,36 +166,40 @@ int range_width = -1;
 
 PANOCOMPOSER_EXP int ComposePanorama(float* Rmatrices, float* Kmatrices, void* inputImages, int numOfImages, int byteType, int imageHeight, int imageWidth, int numChannels)
 {
-// TODO - Break ComposePanoram into (1) Prepare - calculate the size of the output based on Transforms (2) Process - actual warp and compose and put the output to a user provided BUFFER
-// TODO - populate the Rmatrices as vector<MAT> R and the Kmatrices as vector<MAT> K upon entry
-// set SEAM_RESIZE_VALUE
+	// TODO - Break ComposePanoram into (1) Prepare - calculate the size of the output based on Transforms (2) Process - actual warp and compose and put the output to a user provided BUFFER
+	// TODO - populate the Rmatrices as vector<MAT> R and the Kmatrices as vector<MAT> K upon entry
+	// set SEAM_RESIZE_VALUE
 #if ENABLE_LOG
-    int64 app_start_time = getTickCount();
+	int64 app_start_time = getTickCount();
 	int64 t;
 #endif
 
 #if 0
-    cv::setBreakOnError(true);
+	cv::setBreakOnError(true);
 #endif
 
 
-    // Check if have enough images
-    
-    if (numOfImages < 2)
-    {
-        LOGLN("Need more images");
-        return NOT_ENOUGH_IMAGES;
-    }
+	// Check if have enough images
 
-    double work_scale = 1, seam_scale = 1, compose_scale = 1;
-    bool is_work_scale_set = false, is_seam_scale_set = false, is_compose_scale_set = false;
+	if (numOfImages < 2)
+	{
+		LOGLN("Need more images");
+		return NOT_ENOUGH_IMAGES;
+	}
+
+	double work_scale = 1, seam_scale = 1, compose_scale = 1;
+	bool is_work_scale_set = false, is_seam_scale_set = false, is_compose_scale_set = false;
 
 
-    Mat full_img, img;
-    vector<ImageFeatures> features(numOfImages);
-    vector<Mat> images(numOfImages);
-    vector<Size> full_img_sizes(numOfImages);
-    double seam_work_aspect = 1;
+	Mat full_img, img;
+#ifndef OP
+	return 0;
+}
+#else
+	vector<ImageFeatures> features(numOfImages);
+	vector<Mat> images(numOfImages);
+	vector<Size> full_img_sizes(numOfImages);
+	double seam_work_aspect = 1;
 	int CV_BYTE_TYPE = -1;
 
 	switch (byteType)
@@ -212,6 +216,7 @@ PANOCOMPOSER_EXP int ComposePanorama(float* Rmatrices, float* Kmatrices, void* i
 		CV_BYTE_TYPE = CV_16UC3;
 
 	}
+
 
     for (int i = 0; i < numOfImages; ++i)
     {
@@ -231,7 +236,7 @@ PANOCOMPOSER_EXP int ComposePanorama(float* Rmatrices, float* Kmatrices, void* i
         Mat R;
         cameras[i].R.convertTo(R, CV_32F);
         cameras[i].R = R;
-        LOGLN("Initial camera intrinsics #" << indices[i]+1 << ":\nK:\n" << cameras[i].K() << "\nR:\n" << cameras[i].R);
+        LOGLN("Initial camera intrinsics #" << i+1 << ":\nK:\n" << cameras[i].K() << "\nR:\n" << cameras[i].R);
     }
 
     Ptr<detail::BundleAdjusterBase> adjuster;
@@ -263,7 +268,7 @@ PANOCOMPOSER_EXP int ComposePanorama(float* Rmatrices, float* Kmatrices, void* i
     vector<double> focals;
     for (size_t i = 0; i < cameras.size(); ++i)
     {
-        LOGLN("Camera #" << indices[i]+1 << ":\nK:\n" << cameras[i].K() << "\nR:\n" << cameras[i].R);
+        LOGLN("Camera #" << i+1 << ":\nK:\n" << cameras[i].K() << "\nR:\n" << cameras[i].R);
         focals.push_back(cameras[i].focal);
     }
 
@@ -435,7 +440,7 @@ PANOCOMPOSER_EXP int ComposePanorama(float* Rmatrices, float* Kmatrices, void* i
 
     for (int img_idx = 0; img_idx < numOfImages; ++img_idx)
     {
-        LOGLN("Compositing image #" << indices[img_idx]+1);
+        LOGLN("Compositing image #" << img_idx+1);
 
         // Read image and resize it if necessary
         full_img = imread(img_names[img_idx]);
@@ -568,3 +573,4 @@ PANOCOMPOSER_EXP int ComposePanorama(float* Rmatrices, float* Kmatrices, void* i
     LOGLN("Finished, total time: " << ((getTickCount() - app_start_time) / getTickFrequency()) << " sec");
     return 0;
 }
+#endif

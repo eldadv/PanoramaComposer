@@ -1,0 +1,13 @@
+{
+  "User": {
+    "Id": 1762808,
+    "Username": "eldadv",
+    "Name": "eldad vizel",
+    "Email": "eldad.vizel@gmail.com",
+    "AvatarUrl": "https://secure.gravatar.com/avatar/27761eda77c3fd96e7ee88874feb6a3c?s=80&d=identicon",
+    "PrivateToken": "7scK1ztb7xcYhnPHjj68",
+    "Host": "https://gitlab.com",
+    "TwoFactorEnabled": false,
+    "ApiVersion": 1
+  }
+}
