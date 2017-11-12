@@ -139,10 +139,10 @@ vector<String> img_names;
 bool preview = false;
 bool try_cuda = false;
 double work_megapix = 0.6;
-double seam_megapix = 0.1;
+double seam_megapix = 0.08;
 double compose_megapix = -1;
 float conf_thresh = 1.f;
-string features_type = "surf";
+string features_type = "orb";
 string matcher_type = "homography";
 string estimator_type = "homography";
 string ba_cost_func = "ray";
@@ -151,11 +151,11 @@ bool do_wave_correct = true;
 WaveCorrectKind wave_correct = detail::WAVE_CORRECT_HORIZ;
 bool save_graph = false;
 std::string save_graph_to;
-string warp_type = "spherical";
+string warp_type = "affine";
 int expos_comp_type = ExposureCompensator::GAIN_BLOCKS;
 float match_conf = 0.3f;
-string seam_find_type = "gc_color";
-int blend_type = Blender::MULTI_BAND;
+string seam_find_type = "dp_colorgrad";
+int blend_type = Blender::FEATHER;
 int timelapse_type = Timelapser::AS_IS;
 float blend_strength = 5;
 string result_name = "result.jpg";
@@ -684,6 +684,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+	int64 ticStartCompensator = getTickCount();
+
     Ptr<RotationWarper> warper = warper_creator->create(static_cast<float>(warped_image_scale * seam_work_aspect));
 
     for (int i = 0; i < num_images; ++i)
@@ -890,9 +892,11 @@ int main(int argc, char* argv[])
         blender->blend(result, result_mask);
 
         LOGLN("Compositing, time: " << ((getTickCount() - t) / getTickFrequency()) << " sec");
-
+		LOGLN("Time from Compensation to File Write : " << ((getTickCount() - ticStartCompensator) / getTickFrequency()) << " sec");
         imwrite(result_name, result);
     }
+
+
 
     LOGLN("Finished, total time: " << ((getTickCount() - app_start_time) / getTickFrequency()) << " sec");
     return 0;
