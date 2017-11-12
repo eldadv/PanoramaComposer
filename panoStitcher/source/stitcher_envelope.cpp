@@ -58,6 +58,7 @@
 #include "opencv2/stitching/detail/seam_finders.hpp"
 #include "opencv2/stitching/detail/warpers.hpp"
 #include "opencv2/stitching/warpers.hpp"
+#include <composing_lib.h>
 
 #define ENABLE_LOG 1
 #define LOG(msg) std::cout << msg

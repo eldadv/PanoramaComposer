@@ -164,7 +164,7 @@ int range_width = -1;
 
 
 
-PANOCOMPOSER_EXP int ComposePanorama(float* Rmatrices, float* Kmatrices, void* inputImages, int numOfImages, int byteType, int imageHeight, int imageWidth, int numChannels)
+PANOCOMPOSER_EXP int ComposePanorama(float** Rmatrices, float** Kmatrices, void** inputImages, int numOfImages, int byteType, int imageHeight, int imageWidth, int numChannels)
 {
 	// TODO - Break ComposePanoram into (1) Prepare - calculate the size of the output based on Transforms (2) Process - actual warp and compose and put the output to a user provided BUFFER
 	// TODO - populate the Rmatrices as vector<MAT> R and the Kmatrices as vector<MAT> K upon entry
@@ -190,10 +190,7 @@ PANOCOMPOSER_EXP int ComposePanorama(float* Rmatrices, float* Kmatrices, void* i
 	double work_scale = 1, seam_scale = 1, compose_scale = 1;
 	bool is_work_scale_set = false, is_seam_scale_set = false, is_compose_scale_set = false;
 
-
 	Mat full_img, img;
-
-	vector<ImageFeatures> features(numOfImages);
 	vector<Mat> images(numOfImages);
 	vector<Size> full_img_sizes(numOfImages);
 	double seam_work_aspect = 1;
@@ -217,76 +214,22 @@ PANOCOMPOSER_EXP int ComposePanorama(float* Rmatrices, float* Kmatrices, void* i
 
     for (int i = 0; i < numOfImages; ++i)
     {
-        images[i] = Mat(imageHeight,imageWidth,CV_BYTE_TYPE, inputImages);
+        images[i] = Mat(imageHeight,imageWidth,CV_BYTE_TYPE, inputImages[i]);
     }
-
-    vector<MatchesInfo> pairwise_matches;    
-
-    Ptr<Estimator> estimator;
 
     vector<CameraParams> cameras;
-	(*estimator)(features, pairwise_matches, cameras);
-
 
     for (size_t i = 0; i < cameras.size(); ++i)
     {
-        Mat R;
-        cameras[i].R.convertTo(R, CV_32F);
+		Mat R(3, 3, CV_32F, Rmatrices[i]);
+		Mat K(3, 3, CV_32F, Kmatrices[i]);
+        // cameras[i].R.convertTo(R, CV_32F);
         cameras[i].R = R;
-        LOGLN("Initial camera intrinsics #" << i+1 << ":\nK:\n" << cameras[i].K() << "\nR:\n" << cameras[i].R);
-    }
-
-    Ptr<detail::BundleAdjusterBase> adjuster;
-    if (ba_cost_func == "reproj") adjuster = makePtr<detail::BundleAdjusterReproj>();
-    else if (ba_cost_func == "ray") adjuster = makePtr<detail::BundleAdjusterRay>();
-    else if (ba_cost_func == "affine") adjuster = makePtr<detail::BundleAdjusterAffinePartial>();
-    else if (ba_cost_func == "no") adjuster = makePtr<NoBundleAdjuster>();
-    else
-    {
-        cout << "Unknown bundle adjustment cost function: '" << ba_cost_func << "'.\n";
-        return -1;
-    }
-
-
-
-    adjuster->setConfThresh(conf_thresh);
-    Mat_<uchar> refine_mask = Mat::zeros(3, 3, CV_8U);
-    if (ba_refine_mask[0] == 'x') refine_mask(0,0) = 1;
-    if (ba_refine_mask[1] == 'x') refine_mask(0,1) = 1;
-    if (ba_refine_mask[2] == 'x') refine_mask(0,2) = 1;
-    if (ba_refine_mask[3] == 'x') refine_mask(1,1) = 1;
-    if (ba_refine_mask[4] == 'x') refine_mask(1,2) = 1;
-    adjuster->setRefinementMask(refine_mask);
-    if (!(*adjuster)(features, pairwise_matches, cameras))
-    {
-        cout << "Camera parameters adjusting failed.\n";
-        return -1;
-    }
-
-    // Find median focal length
-
-    vector<double> focals;
-    for (size_t i = 0; i < cameras.size(); ++i)
-    {
-        LOGLN("Camera #" << i+1 << ":\nK:\n" << cameras[i].K() << "\nR:\n" << cameras[i].R);
-        focals.push_back(cameras[i].focal);
-    }
-
-    sort(focals.begin(), focals.end());
-    float warped_image_scale;
-    if (focals.size() % 2 == 1)
-        warped_image_scale = static_cast<float>(focals[focals.size() / 2]);
-    else
-        warped_image_scale = static_cast<float>(focals[focals.size() / 2 - 1] + focals[focals.size() / 2]) * 0.5f;
-
-    if (do_wave_correct)
-    {
-        vector<Mat> rmats;
-        for (size_t i = 0; i < cameras.size(); ++i)
-            rmats.push_back(cameras[i].R.clone());
-        waveCorrect(rmats, wave_correct);
-        for (size_t i = 0; i < cameras.size(); ++i)
-            cameras[i].R = rmats[i];
+		// cameras[i].K = K; can't edit K because it is defined as constant by OPENCV
+		Mat_<float> K;
+		Mat Kdata(3, 3, CV_32F, Kmatrices[i]);
+		K = (Mat_<float>)Kdata;
+        // ("Initial camera intrinsics #" << i+1 << ":\nK:\n" << Kdata() << "\nR:\n" << cameras[i].R);
     }
 
     LOGLN("Warping images (auxiliary)... ");
@@ -368,8 +311,10 @@ PANOCOMPOSER_EXP int ComposePanorama(float* Rmatrices, float* Kmatrices, void* i
     #pragma omp parallel for
     for (int i = 0; i < numOfImages; ++i)
     {
-        Mat_<float> K;
-        cameras[i].K().convertTo(K, CV_32F);
+		Mat_<float> K;
+		Mat Kdata(3, 3, CV_32F, Kmatrices[i]);
+		K = (Mat_<float>)Kdata;
+		// cameras[i].K().convertTo(K, CV_32F);
         float swa = (float)seam_work_aspect;
         K(0,0) *= swa; K(0,2) *= swa;
         K(1,1) *= swa; K(1,2) *= swa;
@@ -474,8 +419,9 @@ PANOCOMPOSER_EXP int ComposePanorama(float* Rmatrices, float* Kmatrices, void* i
                     sz.height = cvRound(full_img_sizes[i].height * compose_scale);
                 }
 
-                Mat K;
-                cameras[i].K().convertTo(K, CV_32F);
+				Mat_<float> K;
+				Mat Kdata(3, 3, CV_32F, Kmatrices[i]);
+				K = (Mat_<float>)Kdata;
                 Rect roi = warper->warpRoi(sz, K, cameras[i].R);
                 corners[i] = roi.tl();
                 sizes[i] = roi.size();
